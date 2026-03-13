@@ -4,14 +4,6 @@ A full‑stack, queue‑based audio transcription system that demonstrates API d
 
 This repo is structured the way a small production service would be: a producer API for ingest, a consumer/worker for processing, and a frontend (currently a stub) that can be expanded into a complete UI.
 
-**Why This Project Is Useful to Recruiters**
-
-1. Shows async system design (queue + worker) rather than a single synchronous API.
-2. Demonstrates real‑world integration patterns (file download, media conversion, external AI API, DB persistence).
-3. Uses Docker Compose to orchestrate multiple services cleanly.
-
----
-
 **Architecture Overview**
 
 1. **Producer API** (`producer-service`)
