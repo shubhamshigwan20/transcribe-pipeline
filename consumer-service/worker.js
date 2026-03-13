@@ -10,7 +10,7 @@ const fs = require("fs");
 const FormData = require("form-data");
 const db = require("./db/db");
 
-const PORT = process.env.PORT || 4000;
+const PORT = 6000;
 app.use(express.json());
 app.use(cors());
 app.use(helmet());

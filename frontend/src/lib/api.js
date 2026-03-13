@@ -1,9 +1,11 @@
-const baseUrl =
-  import.meta.env.VITE_CONSUMER_API_BASE || "http://localhost:3000";
+const ingestBaseUrl =
+  import.meta.env.VITE_PRODUCER_API_BASE || "http://localhost:3000";
+const logsBaseUrl =
+  import.meta.env.VITE_CONSUMER_API_BASE || "http://localhost:4000";
 
-const buildUrl = (path) => {
+const buildUrl = (base, path) => {
   if (path.startsWith("http")) return path;
-  return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+  return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
 };
 
 const jsonHeaders = {
@@ -11,7 +13,7 @@ const jsonHeaders = {
 };
 
 export async function postTranscribe(url) {
-  const response = await fetch(buildUrl("/transcribe"), {
+  const response = await fetch(buildUrl(ingestBaseUrl, "/transcribe"), {
     method: "POST",
     headers: jsonHeaders,
     body: JSON.stringify({ url }),
@@ -26,7 +28,7 @@ export async function postTranscribe(url) {
 }
 
 export async function fetchLogs() {
-  const response = await fetch(buildUrl("/logs"));
+  const response = await fetch(buildUrl(logsBaseUrl, "/logs"));
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text || "Failed to fetch logs");
@@ -36,7 +38,7 @@ export async function fetchLogs() {
 
 export async function fetchTranscript(url) {
   const response = await fetch(
-    buildUrl(`/logs/text?url=${encodeURIComponent(url)}`),
+    buildUrl(logsBaseUrl, `/logs/text?url=${encodeURIComponent(url)}`),
   );
   if (!response.ok) {
     const text = await response.text();
@@ -45,4 +47,4 @@ export async function fetchTranscript(url) {
   return response.json();
 }
 
-export { baseUrl };
+export { ingestBaseUrl, logsBaseUrl };
