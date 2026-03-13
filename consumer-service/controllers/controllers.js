@@ -1,4 +1,5 @@
 const { Queue } = require("bullmq");
+const db = require("../db/db");
 require("dotenv").config();
 
 const transcribeQueue = new Queue("transcribe-queue", {
@@ -22,4 +23,18 @@ const handleTranscription = async (req, res) => {
   });
 };
 
-module.exports = { handleTranscription };
+const handleLogs = async (_req, res) => {
+  try {
+    const result = await db.query(
+      "SELECT url, status FROM logs ORDER BY url ASC",
+    );
+    return res.status(200).json(result.rows);
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Failed to fetch logs",
+    });
+  }
+};
+
+module.exports = { handleTranscription, handleLogs };

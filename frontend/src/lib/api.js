@@ -1,4 +1,5 @@
-const baseUrl = import.meta.env.VITE_CONSUMER_API_BASE || "http://localhost:4000";
+const baseUrl =
+  import.meta.env.VITE_CONSUMER_API_BASE || "http://localhost:3000";
 
 const buildUrl = (path) => {
   if (path.startsWith("http")) return path;
