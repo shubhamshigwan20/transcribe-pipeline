@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  producer:
+    build: ./producer-service
+    env_file:
+      - ./producer-service/.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+
+  consumer:
+    build: ./consumer-service
+    env_file:
+      - ./consumer-service/.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - PORT=4000
+    ports:
+      - "4000:4000"
+    depends_on:
+      - redis
+
+  consumer-worker:
+    build: ./consumer-service
+    command: ["node", "worker.js"]
+    env_file:
+      - ./consumer-service/.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  frontend:
+    build: ./frontend
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+    ports:
+      - "5173:5173"
+    depends_on:
+      - producer
+      - consumer
+
+volumes:
+  redis-data:
