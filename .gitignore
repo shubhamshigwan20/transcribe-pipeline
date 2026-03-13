@@ -1,0 +1,8 @@
+/producer-service/node_modules
+/producer-service/.env
+
+/frontend/node_modules
+/frontend/.env
+
+/consumer-service/node_modules
+/consumer-service/.env
