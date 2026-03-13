@@ -1,3 +1,7 @@
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const app = express();
 require("dotenv").config();
 const { Worker, Queue, QueueEvents } = require("bullmq");
 const ffmpeg = require("fluent-ffmpeg");
@@ -5,6 +9,31 @@ const axios = require("axios");
 const fs = require("fs");
 const FormData = require("form-data");
 const db = require("./db/db");
+
+const PORT = process.env.PORT || 4000;
+app.use(express.json());
+app.use(cors());
+app.use(helmet());
+
+app.get("/", (req, res) => {
+  return res.status(200).json({
+    status: true,
+    timestamp: new Date().toLocaleString(),
+    message: "consumer-worker running",
+  });
+});
+
+app.get("/health", (req, res) => {
+  return res.status(200).json({
+    status: "ok",
+    service: "consumer-worker",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`server started at port ${PORT}`);
+});
 
 const WHISPER_API = process.env.WHISPER_API;
 const queue = new Queue("transcribe-queue", {
@@ -20,7 +49,9 @@ queueEvents.on("waiting", async ({ jobId }) => {
 
   const insertResult = await db.query(
     `INSERT INTO logs (url, status)
-     VALUES ($1, 'queued')`,
+    VALUES ($1, 'queued')
+    ON CONFLICT (url)
+    DO UPDATE SET status='queued'`,
     [job.data],
   );
   if (!insertResult.rowCount) {
@@ -93,11 +124,15 @@ const worker = new Worker(
       }
       console.log(`started working on job ${job.id}`);
       console.log(`job data ${job.data}`);
-      await downloadMp3(job.data, "audio.mp3");
-      await convertMp3ToWav("audio.mp3", "output.wav");
+
+      const mp3File = `audio-${job.id}.mp3`;
+      const wavFile = `output-${job.id}.wav`;
+
+      await downloadMp3(job.data, mp3File);
+      await convertMp3ToWav(mp3File, wavFile);
 
       const form = new FormData();
-      form.append("file", fs.createReadStream("output.wav"));
+      form.append("file", fs.createReadStream(wavFile));
 
       const result = await axios.post(`${WHISPER_API}/transcribe`, form, {
         headers: form.getHeaders(),
@@ -112,6 +147,9 @@ const worker = new Worker(
       } else {
         console.log(`status=complete for url ${job.data}`);
       }
+
+      fs.unlinkSync(mp3File);
+      fs.unlinkSync(wavFile);
 
       console.log(result.data);
     } catch (err) {
