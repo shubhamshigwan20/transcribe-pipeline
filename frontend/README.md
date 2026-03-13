@@ -1,16 +1,35 @@
-# React + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend is a Vite + React application for submitting transcription jobs and viewing pipeline status.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Routes**
 
-## React Compiler
+- `/` Submit a presigned MP3 URL to `/transcribe` on the producer API.
+- `/dashboard` View log rows in a table.
+- `/text` View the full transcript for a selected URL.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+**Environment Variables**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `VITE_PRODUCER_API_BASE` (default `http://localhost:3000`)
+- `VITE_CONSUMER_API_BASE` (default `http://localhost:4000`)
+
+Create a local `.env` file or use the provided example:
+
+```bash
+cp .env.example .env
+```
+
+---
+
+**Run Locally**
+
+```bash
+npm install
+npm run dev
+```
+
+The dev server runs on port `5173` by default.
